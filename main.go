@@ -1,12 +1,18 @@
 package main
 
 import (
-	"SimpleDY/handler"
 	"SimpleDY/initial"
+	"SimpleDY/middleware/redis"
+	"SimpleDY/router"
 )
 
-func main()  {
+func main() {
 	initial.LoadConfig()
 	initial.Mysql()
-	handler.Handler()
+	redis.InitRedis() //初始化redis
+	r := router.InitRouter()
+	err := r.Run(":8888")
+	if err != nil {
+		return
+	}
 }

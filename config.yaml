@@ -7,3 +7,10 @@ mysql:
   username: root
   password: 123456
   url: tcp(localhost:3306)/simpledy?charset=utf8mb4&parseTime=True&loc=Local
+
+log:
+  Filename: log/debug.log
+  MaxSize: 200
+  MaxAge: 30
+  MaxBackups: 10
+  Level: info

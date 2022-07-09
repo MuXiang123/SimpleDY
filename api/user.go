@@ -1,7 +1,7 @@
 package api
 
 import (
-	"SimpleDY/middleware"
+	"SimpleDY/middleware/jwt"
 	"SimpleDY/pojo"
 	"SimpleDY/service"
 	"SimpleDY/status"
@@ -40,7 +40,7 @@ func Register(c *gin.Context) {
 	if ok { //注册成功
 
 		//生成token
-		token, err := middleware.GenerateTokenString(userId, param.Username)
+		token, err := jwt.GenerateTokenString(userId, param.Username)
 		if err != nil {
 			c.JSON(http.StatusOK, pojo.UserRegisterResponse{
 				StatusCode: status.GenerateTokenError,
@@ -88,7 +88,7 @@ func Login(c *gin.Context) {
 	userID, code := userService.Login(param.Username, pw)
 	if userID != 0 {
 		//生成token
-		token, err := middleware.GenerateTokenString(userID, param.Username)
+		token, err := jwt.GenerateTokenString(userID, param.Username)
 		if err != nil {
 			c.JSON(http.StatusOK, pojo.UserLoginResponse{
 				StatusCode: status.GenerateTokenError,

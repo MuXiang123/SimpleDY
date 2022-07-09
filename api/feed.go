@@ -13,7 +13,6 @@ func Feed(c *gin.Context) {
 	//时间返回的视频流的发布时间需要早于time
 	timeStr := c.Query("latest_time")
 
-	//token := c.Query("token")
 	t, _ := strconv.ParseInt(timeStr, 10, 64)
 	if t == 0 {
 		t = time.Now().Unix()

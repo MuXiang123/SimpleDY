@@ -4,7 +4,7 @@
 package api
 
 import (
-	"SimpleDY/middleware"
+	"SimpleDY/middleware/jwt"
 	"SimpleDY/pojo"
 	"SimpleDY/service"
 	"SimpleDY/status"
@@ -20,7 +20,7 @@ var followingService service.FollowingService
 func RelationAction(c *gin.Context) {
 	//当前用户id
 	strToken := c.Query("token")
-	tokenStruct, _ := middleware.Parse(strToken)
+	tokenStruct, _ := jwt.Parse(strToken)
 	hostId := tokenStruct.UserId
 
 	//获取待关注的用户id
@@ -72,7 +72,7 @@ func RelationAction(c *gin.Context) {
 func FollowList(c *gin.Context) {
 	//获取用户本人id
 	strToken := c.Query("token")
-	tokenStruct, _ := middleware.Parse(strToken)
+	tokenStruct, _ := jwt.Parse(strToken)
 	hostId := tokenStruct.UserId
 	fmt.Println(hostId, tokenStruct)
 	//获取其他用户id
@@ -120,7 +120,7 @@ func FollowList(c *gin.Context) {
 func FollowerList(c *gin.Context) {
 	//获取用户本人id
 	strToken := c.Query("token")
-	tokenStruct, _ := middleware.Parse(strToken)
+	tokenStruct, _ := jwt.Parse(strToken)
 	hostId := tokenStruct.UserId
 	//1.2获取其他用户id
 	getGuestId, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
