@@ -1,14 +1,18 @@
-package pojo
+package dao
 
-//User数据库映射
+// User 对应数据库User表结构的结构体
 type User struct {
-	Id            uint64 `gorm:"column:id;autoIncrement;primaryKey"`
-	Name          string `gorm:"column:name"`            //昵称
-	Username      string `gorm:"column:username;unique"` //用户名
-	Password      string `gorm:"column:password"`
-	FollowCount   uint64 `gorm:"column:follow_count"`
-	FollowerCount uint64 `gorm:"column:follower_count"`
-	IsFollow      bool   `gorm:"column:is_follow"`
+	Id            uint64 //自增主键
+	Name          string //昵称
+	Username      string //用户名
+	Password      string //密码
+	followCount   uint64 //关注数
+	followerCount uint64 //粉丝数
+}
+
+// TableName 修改表名映射
+func (user User) TableName() string {
+	return "user"
 }
 
 //用户注册参数

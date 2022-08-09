@@ -1,4 +1,4 @@
-package pojo
+package dao
 
 //用户注册返回信息
 type UserRegisterResponse struct {

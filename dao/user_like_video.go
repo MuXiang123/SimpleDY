@@ -1,4 +1,4 @@
-package pojo
+package dao
 
 //点赞post操作获取参数
 type FavoritaParam struct {

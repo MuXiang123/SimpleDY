@@ -1,8 +1,8 @@
 package service
 
 import (
+	"SimpleDY/dao"
 	"SimpleDY/global"
-	"SimpleDY/pojo"
 	"SimpleDY/status"
 	"time"
 )
@@ -26,7 +26,7 @@ param :
 */
 func (videoservice VideoService) GetNextId() uint64 {
 	var count int64
-	global.Db.Model(&pojo.Video{}).Count(&count)
+	global.Db.Model(&dao.Video{}).Count(&count)
 	return uint64(count) + 1
 }
 
@@ -36,7 +36,7 @@ param 视频路径 封面路径 标题 作者id
 response 错误码
 */
 func (videoservice VideoService) AddVideo(videoPath, coverPath, title string, authorId uint64) int64 {
-	video := pojo.Video{
+	video := dao.Video{
 		AuthorId:      authorId,
 		VideoPath:     videoPath,
 		CoverPath:     coverPath,
@@ -55,9 +55,9 @@ func (videoservice VideoService) AddVideo(videoPath, coverPath, title string, au
 //GetVideoListByAuthorId
 /*通过作者id查询发布的视频列表
  */
-func (videoservice VideoService) GetVideoListByAuthorId(authorId uint64) *pojo.VideoList {
-	var videolist pojo.VideoList
-	global.Db.Model(&pojo.Video{}).Where("authorId = ?", authorId).Find(&videolist)
+func (videoservice VideoService) GetVideoListByAuthorId(authorId uint64) *dao.VideoList {
+	var videolist dao.VideoList
+	global.Db.Model(&dao.Video{}).Where("authorId = ?", authorId).Find(&videolist)
 	return &videolist
 }
 
@@ -65,15 +65,15 @@ func (videoservice VideoService) GetVideoListByAuthorId(authorId uint64) *pojo.V
 // 返回截止时间Time时间之前的视频流 最多30条
 // param 截止时间
 // response 视频流
-func (VideoService VideoService) FeedbyTime(time int64) *pojo.VideoList {
-	var videolist pojo.VideoList
-	global.Db.Model(&pojo.Video{}).Where("create_time < ?", time).Order("create_time DESC").Limit(3).Find(&videolist)
+func (VideoService VideoService) FeedbyTime(time int64) *dao.VideoList {
+	var videolist dao.VideoList
+	global.Db.Model(&dao.Video{}).Where("create_time < ?", time).Order("create_time DESC").Limit(3).Find(&videolist)
 	return &videolist
 }
 
 //添加喜欢的数量
-func (videoservice VideoService) AddFavoriteCount(param pojo.FavoritaParam) error {
-	global.Db.Model(&pojo.Video{})
+func (videoservice VideoService) AddFavoriteCount(param dao.FavoritaParam) error {
+	global.Db.Model(&dao.Video{})
 	return nil
 }
 

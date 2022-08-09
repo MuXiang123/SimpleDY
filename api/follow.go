@@ -4,8 +4,8 @@
 package api
 
 import (
+	"SimpleDY/dao"
 	"SimpleDY/middleware/jwt"
-	"SimpleDY/pojo"
 	"SimpleDY/service"
 	"SimpleDY/status"
 	"fmt"
@@ -30,14 +30,14 @@ func RelationAction(c *gin.Context) {
 	getActionType, err3 := strconv.ParseInt(c.Query("action_type"), 10, 64)
 	actionType := uint(getActionType)
 	if err2 != nil || err3 != nil {
-		c.JSON(http.StatusOK, pojo.FollowResponse{
+		c.JSON(http.StatusOK, dao.FollowResponse{
 			StatusCode: status.UnknownError,
 			StatusMsg:  status.Msg(status.UnknownError),
 		})
 	}
 	//对自己关注/取消关注自己进行校验，不合法
 	if guestId == hostId {
-		c.JSON(http.StatusOK, pojo.FollowResponse{
+		c.JSON(http.StatusOK, dao.FollowResponse{
 			StatusCode: status.InabilityToFocusOnYourself,
 			StatusMsg:  status.Msg(status.InabilityToFocusOnYourself),
 		})
@@ -48,19 +48,19 @@ func RelationAction(c *gin.Context) {
 	//调用service层
 	response, err := followingService.FollowAction(hostId, guestId, actionType)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, pojo.FollowResponse{
+		c.JSON(http.StatusBadRequest, dao.FollowResponse{
 			StatusCode: response,
 			StatusMsg:  status.Msg(1),
 		})
 	} else {
 		if actionType == 1 {
-			c.JSON(http.StatusOK, pojo.FollowResponse{
+			c.JSON(http.StatusOK, dao.FollowResponse{
 				StatusCode: status.Success,
 				StatusMsg:  status.Msg(0),
 			})
 		}
 		if actionType == 2 {
-			c.JSON(http.StatusOK, pojo.FollowResponse{
+			c.JSON(http.StatusOK, dao.FollowResponse{
 				StatusCode: status.Success,
 				StatusMsg:  status.Msg(0),
 			})
@@ -81,7 +81,7 @@ func FollowList(c *gin.Context) {
 
 	//判断查询类型，从数据库取用户列表
 	var err error
-	var userList []pojo.User
+	var userList []dao.User
 	if guestId == 0 {
 		//若其他用户id为0，代表查本人的关注表
 		userList, err = followingService.GetFollowingList(hostId)
@@ -91,7 +91,7 @@ func FollowList(c *gin.Context) {
 	}
 
 	//构造返回的数据
-	var ReturnFollowerList = make([]pojo.ReturnFollower, len(userList))
+	var ReturnFollowerList = make([]dao.ReturnFollower, len(userList))
 	for i, m := range userList {
 		ReturnFollowerList[i].Id = uint(m.Id)
 		ReturnFollowerList[i].Name = m.Name
@@ -102,13 +102,13 @@ func FollowList(c *gin.Context) {
 
 	//响应返回, 粉丝表和关注表的返回结构体相同，复用
 	if err != nil {
-		c.JSON(http.StatusBadRequest, pojo.FollowingListResponse{
+		c.JSON(http.StatusBadRequest, dao.FollowingListResponse{
 			StatusCode: 1,
 			StatusMsg:  status.Msg(14),
 			UserList:   nil,
 		})
 	} else {
-		c.JSON(http.StatusOK, pojo.FollowingListResponse{
+		c.JSON(http.StatusOK, dao.FollowingListResponse{
 			StatusCode: 0,
 			StatusMsg:  status.Msg(13),
 			UserList:   ReturnFollowerList,
@@ -128,7 +128,7 @@ func FollowerList(c *gin.Context) {
 
 	//判断查询类型
 	var err error
-	var userList []pojo.User
+	var userList []dao.User
 	if guestId == 0 {
 		//查本人的粉丝表
 		userList, err = followingService.GetFollowerList(hostId)
@@ -138,7 +138,7 @@ func FollowerList(c *gin.Context) {
 	}
 
 	//3.判断查询类型，从数据库取用户列表
-	var ReturnFollowerList = make([]pojo.ReturnFollower, len(userList))
+	var ReturnFollowerList = make([]dao.ReturnFollower, len(userList))
 	for i, m := range userList {
 		ReturnFollowerList[i].Id = uint(m.Id)
 		ReturnFollowerList[i].Name = m.Name
@@ -149,13 +149,13 @@ func FollowerList(c *gin.Context) {
 
 	//响应返回, 粉丝表和关注表的返回结构体相同，复用
 	if err != nil {
-		c.JSON(http.StatusBadRequest, pojo.FollowingListResponse{
+		c.JSON(http.StatusBadRequest, dao.FollowingListResponse{
 			StatusCode: status.UnknownError,
 			StatusMsg:  status.Msg(14),
 			UserList:   nil,
 		})
 	} else {
-		c.JSON(http.StatusOK, pojo.FollowingListResponse{
+		c.JSON(http.StatusOK, dao.FollowingListResponse{
 			StatusCode: status.Success,
 			StatusMsg:  status.Msg(13),
 			UserList:   ReturnFollowerList,

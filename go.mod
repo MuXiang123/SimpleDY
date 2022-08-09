@@ -7,6 +7,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/spf13/viper v1.11.0
+	github.com/streadway/amqp v1.0.0
 	github.com/u2takey/ffmpeg-go v0.4.1
 	gorm.io/driver/mysql v1.3.3
 	gorm.io/gorm v1.23.5

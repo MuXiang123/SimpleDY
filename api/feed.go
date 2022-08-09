@@ -1,7 +1,7 @@
 package api
 
 import (
-	"SimpleDY/pojo"
+	"SimpleDY/dao"
 	"SimpleDY/status"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -20,12 +20,12 @@ func Feed(c *gin.Context) {
 	//从数据库查到的视频列表
 	videoList := videoService.FeedbyTime(t)
 	//处理为视频返回信息列表
-	VideoResponseList := make([]pojo.VideoResponse, len(*videoList))
+	VideoResponseList := make([]dao.VideoResponse, len(*videoList))
 
 	for idx, elem := range *videoList {
 		author := userService.GetInfoByUserId(elem.AuthorId)
-		VideoResponseList[idx] = pojo.VideoResponse{
-			Author: pojo.Author{
+		VideoResponseList[idx] = dao.VideoResponse{
+			Author: dao.Author{
 				FollowCount:   int64(author.FollowCount),
 				FollowerCount: int64(author.FollowerCount),
 				ID:            int64(author.Id),
@@ -45,7 +45,7 @@ func Feed(c *gin.Context) {
 
 	lastTime := (*videoList)[0].CreatedAt
 
-	c.JSON(http.StatusOK, pojo.FeedResponse{
+	c.JSON(http.StatusOK, dao.FeedResponse{
 		NextTime:   lastTime,
 		StatusCode: 0,
 		StatusMsg:  status.Msg(0),

@@ -4,8 +4,8 @@
 package service
 
 import (
+	"SimpleDY/dao"
 	"SimpleDY/global"
-	"SimpleDY/pojo"
 	"SimpleDY/status"
 	"errors"
 	"gorm.io/gorm"
@@ -15,8 +15,8 @@ type FollowingService struct {
 }
 
 // InsertFollowing 插入关注
-func InsertFollowing(following *pojo.Follow) error {
-	err := global.Db.Model(&pojo.Follow{}).Create(&following).Error
+func InsertFollowing(following *dao.Follow) error {
+	err := global.Db.Model(&dao.Follow{}).Create(&following).Error
 	if err != nil {
 		return err
 	}
@@ -25,7 +25,7 @@ func InsertFollowing(following *pojo.Follow) error {
 
 // AddFollowCount 增加关注数
 func AddFollowCount(hostId uint64) error {
-	err := global.Db.Model(&pojo.User{}).
+	err := global.Db.Model(&dao.User{}).
 		Where("id = ?", hostId).
 		Update("follow_count", gorm.Expr("follow_count + ?", 1)).
 		Error
@@ -37,7 +37,7 @@ func AddFollowCount(hostId uint64) error {
 
 // AddFollowerCount 增加粉丝数
 func AddFollowerCount(guestId uint64) error {
-	err := global.Db.Model(&pojo.User{}).
+	err := global.Db.Model(&dao.User{}).
 		Where("id = ?", guestId).
 		Update("follower_count", gorm.Expr("follower_count + ?", 1)).
 		Error
@@ -49,7 +49,7 @@ func AddFollowerCount(guestId uint64) error {
 
 // DecreaseFollowerCount 减少粉丝数
 func DecreaseFollowerCount(guest uint64) error {
-	err := global.Db.Model(&pojo.User{}).Where("id = ?", guest).
+	err := global.Db.Model(&dao.User{}).Where("id = ?", guest).
 		Update("follower_count", gorm.Expr("follower_count - ?", 1)).Error
 	if err != nil {
 		return nil
@@ -59,7 +59,7 @@ func DecreaseFollowerCount(guest uint64) error {
 
 // DecreaseFollowCount 减少关注数
 func DecreaseFollowCount(hostId uint64) error {
-	err := global.Db.Model(&pojo.User{}).Where("id = ?", hostId).
+	err := global.Db.Model(&dao.User{}).Where("id = ?", hostId).
 		Update("follow_count", gorm.Expr("follow_count - ?", 1)).Error
 	if err != nil {
 		return nil
@@ -68,8 +68,8 @@ func DecreaseFollowCount(hostId uint64) error {
 }
 
 // DeleteFollowing 删除关注表记录
-func DeleteFollowing(following *pojo.Follow) error {
-	err := global.Db.Model(&pojo.Follow{}).
+func DeleteFollowing(following *dao.Follow) error {
+	err := global.Db.Model(&dao.Follow{}).
 		Where("host_id=? AND guest_id=?", following.HostId, following.GuestId).
 		Delete(&following).Error
 	if err != nil {
@@ -80,9 +80,9 @@ func DeleteFollowing(following *pojo.Follow) error {
 
 // IsFollowing 判断host是否关注guest
 func IsFollowing(hostId uint64, guestId uint64) bool {
-	var relationExist = &pojo.Follow{}
+	var relationExist = &dao.Follow{}
 	//判断关注是否存在
-	err := global.Db.Model(&pojo.Follow{}).
+	err := global.Db.Model(&dao.Follow{}).
 		Where("host_id=? AND guest_id=?", hostId, guestId).
 		First(&relationExist).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -96,7 +96,7 @@ func IsFollowing(hostId uint64, guestId uint64) bool {
 
 // FollowAction 关注和取消关注操作
 func (followingservice FollowingService) FollowAction(hostId uint64, guestId uint64, actionType uint) (int64, error) {
-	newFollowing := pojo.Follow{
+	newFollowing := dao.Follow{
 		HostId:  hostId,
 		GuestId: guestId,
 	}
@@ -163,17 +163,17 @@ func (followingservice FollowingService) FollowAction(hostId uint64, guestId uin
 }
 
 // GetFollowingList GetFollowing 获取关注列表
-func (followingservice FollowingService) GetFollowingList(hostId uint64) ([]pojo.User, error) {
+func (followingservice FollowingService) GetFollowingList(hostId uint64) ([]dao.User, error) {
 	//用户列表
-	var userList []pojo.User
+	var userList []dao.User
 	//粉丝集合
 	var guestList []uint64
 	//子查询，先查关注表，再查用户表，获取所有粉丝
-	errGuestList := global.Db.Model(&pojo.Follow{}).Select("guest_id").Where("host_id = ?", hostId).Scan(&guestList).Error
+	errGuestList := global.Db.Model(&dao.Follow{}).Select("guest_id").Where("host_id = ?", hostId).Scan(&guestList).Error
 	if errGuestList != nil {
 		return userList, nil
 	}
-	errUserList := global.Db.Model(&pojo.User{}).Where("id IN ?", guestList).Scan(&userList).Error
+	errUserList := global.Db.Model(&dao.User{}).Where("id IN ?", guestList).Scan(&userList).Error
 	if errUserList != nil {
 		return userList, errUserList
 	}
@@ -181,17 +181,17 @@ func (followingservice FollowingService) GetFollowingList(hostId uint64) ([]pojo
 }
 
 // GetFollowerList 获取粉丝列表
-func (followingservice FollowingService) GetFollowerList(guest uint64) ([]pojo.User, error) {
+func (followingservice FollowingService) GetFollowerList(guest uint64) ([]dao.User, error) {
 	//用户列表
-	var userList []pojo.User
+	var userList []dao.User
 	//粉丝集合
 	var hostList []uint64
 	//子查询，先查关注表，再查用户表，获取所有关注
-	errHostList := global.Db.Model(&pojo.Follow{}).Select("host_id").Where("guest_id = ?", guest).Scan(&hostList).Error
+	errHostList := global.Db.Model(&dao.Follow{}).Select("host_id").Where("guest_id = ?", guest).Scan(&hostList).Error
 	if errHostList != nil {
 		return userList, nil
 	}
-	errUserList := global.Db.Model(&pojo.User{}).Where("id IN ?", hostList).Scan(&userList).Error
+	errUserList := global.Db.Model(&dao.User{}).Where("id IN ?", hostList).Scan(&userList).Error
 	if errUserList != nil {
 		return userList, errUserList
 	}

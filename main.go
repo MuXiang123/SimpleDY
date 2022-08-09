@@ -8,8 +8,8 @@ import (
 
 func main() {
 	initial.LoadConfig()
-	initial.Mysql()
-	redis.InitRedis() //初始化redis
+	initial.InitMysql() //初始化mysql
+	redis.InitRedis()   //初始化redis
 	r := router.InitRouter()
 	err := r.Run(":8888")
 	if err != nil {

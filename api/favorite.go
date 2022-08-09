@@ -1,20 +1,26 @@
 package api
 
-//点赞操作
-//func FavoriteOp(c *gin.Context) {
-//	var param pojo.FavoritaParam
-//	err := c.ShouldBind(&param)
-//	if err != nil {
-//		c.JSON(http.StatusOK, pojo.Response{
-//			Code: status.RequestParamError,
-//			Msg:  status.Msg(status.RequestParamError),
-//		})
-//		return
-//	}
-//	//判断是否登陆 or 鉴权token
-//
-//	//更新user_like_video表
-//
-//	//增减video表中点赞者数量
-//
-//}
+import (
+	"SimpleDY/service"
+	"github.com/gin-gonic/gin"
+	"strconv"
+)
+
+var FavoriteService service.FavoriteService
+
+// Favorite 点赞或取消赞操作
+func Favorite(c *gin.Context) {
+	//获取当前用户id
+	strUserId := c.Query("user_id")
+	userId, _ := strconv.ParseInt(strUserId, 10, 64)
+	strVideoId := c.Query("video_id")
+	videoId, _ := strconv.ParseInt(strVideoId, 10, 64)
+	strActionType := c.Query("action_type")
+	actionType, _ := strconv.ParseInt(strActionType, 10, 64)
+
+	FavoriteService.FavoriteAction(videoId, userId, int32(actionType))
+
+}
+func FavoriteList(c *gin.Context) {
+
+}

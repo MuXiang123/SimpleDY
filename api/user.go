@@ -1,8 +1,8 @@
 package api
 
 import (
+	"SimpleDY/dao"
 	"SimpleDY/middleware/jwt"
-	"SimpleDY/pojo"
 	"SimpleDY/service"
 	"SimpleDY/status"
 	"crypto/md5"
@@ -15,12 +15,12 @@ import (
 var userService service.UserService
 
 func Register(c *gin.Context) {
-	var param pojo.UserRegisterParam
+	var param dao.UserRegisterParam
 	err := c.ShouldBind(&param)
 
 	/* 解析参赛错误 */
 	if err != nil {
-		c.JSON(http.StatusOK, pojo.UserRegisterResponse{
+		c.JSON(http.StatusOK, dao.UserRegisterResponse{
 			StatusCode: status.RequestParamError,
 			StatusMsg:  status.Msg(status.RequestParamError),
 			Token:      "",
@@ -42,7 +42,7 @@ func Register(c *gin.Context) {
 		//生成token
 		token, err := jwt.GenerateTokenString(userId, param.Username)
 		if err != nil {
-			c.JSON(http.StatusOK, pojo.UserRegisterResponse{
+			c.JSON(http.StatusOK, dao.UserRegisterResponse{
 				StatusCode: status.GenerateTokenError,
 				StatusMsg:  status.Msg(status.GenerateTokenError),
 				Token:      "",
@@ -52,14 +52,14 @@ func Register(c *gin.Context) {
 
 		}
 
-		c.JSON(http.StatusOK, pojo.UserRegisterResponse{
+		c.JSON(http.StatusOK, dao.UserRegisterResponse{
 			StatusCode: int64(errCode),
 			StatusMsg:  status.Msg(0),
 			Token:      token,
 			UserID:     userId,
 		})
 	} else {
-		c.JSON(http.StatusOK, pojo.UserRegisterResponse{
+		c.JSON(http.StatusOK, dao.UserRegisterResponse{
 			StatusCode: int64(errCode),
 			StatusMsg:  status.Msg(errCode),
 			Token:      "",
@@ -69,11 +69,11 @@ func Register(c *gin.Context) {
 }
 
 func Login(c *gin.Context) {
-	var param pojo.UserLoginParam
+	var param dao.UserLoginParam
 	err := c.ShouldBind(&param)
 	/* 解析参赛错误 */
 	if err != nil {
-		c.JSON(http.StatusOK, pojo.UserRegisterResponse{
+		c.JSON(http.StatusOK, dao.UserRegisterResponse{
 			StatusCode: status.RequestParamError,
 			StatusMsg:  status.Msg(status.RequestParamError),
 			Token:      "",
@@ -90,14 +90,14 @@ func Login(c *gin.Context) {
 		//生成token
 		token, err := jwt.GenerateTokenString(userID, param.Username)
 		if err != nil {
-			c.JSON(http.StatusOK, pojo.UserLoginResponse{
+			c.JSON(http.StatusOK, dao.UserLoginResponse{
 				StatusCode: status.GenerateTokenError,
 				StatusMsg:  status.Msg(status.GenerateTokenError),
 				Token:      "",
 				UserID:     0,
 			})
 		} else {
-			c.JSON(http.StatusOK, pojo.UserLoginResponse{
+			c.JSON(http.StatusOK, dao.UserLoginResponse{
 				StatusCode: int64(code),
 				StatusMsg:  status.Msg(0),
 				Token:      token,
@@ -105,7 +105,7 @@ func Login(c *gin.Context) {
 			})
 		}
 	} else {
-		c.JSON(http.StatusOK, pojo.UserLoginResponse{
+		c.JSON(http.StatusOK, dao.UserLoginResponse{
 			StatusCode: int64(code),
 			StatusMsg:  status.Msg(int(code)),
 			Token:      "",
@@ -118,17 +118,17 @@ func GetInfo(c *gin.Context) {
 	userid, ok := c.Get("userid")
 	//参数解析错误
 	if !ok {
-		c.JSON(http.StatusOK, pojo.GetUserInfoResponse{
+		c.JSON(http.StatusOK, dao.GetUserInfoResponse{
 			StatusCode: status.RequestParamError,
 			StatusMsg:  status.Msg(status.RequestParamError),
-			UserInfo:   pojo.UserInfo{},
+			UserInfo:   dao.UserInfo{},
 		})
 	}
 	user := userService.GetInfoByUserId(userid.(uint64))
-	c.JSON(http.StatusOK, pojo.GetUserInfoResponse{
+	c.JSON(http.StatusOK, dao.GetUserInfoResponse{
 		StatusCode: 0,
 		StatusMsg:  "Success",
-		UserInfo: pojo.UserInfo{
+		UserInfo: dao.UserInfo{
 			FollowCount:   int64(user.FollowCount),
 			FollowerCount: int64(user.FollowerCount),
 			ID:            int64(user.Id),

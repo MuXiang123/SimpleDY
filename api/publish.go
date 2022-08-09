@@ -1,7 +1,7 @@
 package api
 
 import (
-	"SimpleDY/pojo"
+	"SimpleDY/dao"
 	"SimpleDY/service"
 	"SimpleDY/status"
 	"SimpleDY/utils"
@@ -20,7 +20,7 @@ func Publish(c *gin.Context) {
 	authorId, _ := c.Get("userid")
 
 	if err != nil {
-		c.JSON(http.StatusOK, pojo.PublishResponse{
+		c.JSON(http.StatusOK, dao.PublishResponse{
 			StatusCode: status.SaveUploadedFileError,
 			StatusMsg:  status.Msg(status.SaveUploadedFileError),
 		})
@@ -31,7 +31,7 @@ func Publish(c *gin.Context) {
 	videoPath := utils.MakeVideoPathById(nextId, file.Filename)
 	err = c.SaveUploadedFile(file, videoPath)
 	if err != nil {
-		c.JSON(http.StatusOK, pojo.PublishResponse{
+		c.JSON(http.StatusOK, dao.PublishResponse{
 			StatusCode: status.SaveUploadedFileError,
 			StatusMsg:  status.Msg(status.SaveUploadedFileError),
 		})
@@ -40,7 +40,7 @@ func Publish(c *gin.Context) {
 	coverPath := utils.MakeCoverPathById(nextId)
 	err = utils.GetCoverFromVideo(videoPath, coverPath)
 	if err != nil {
-		c.JSON(http.StatusOK, pojo.PublishResponse{
+		c.JSON(http.StatusOK, dao.PublishResponse{
 			StatusCode: status.SaveUploadedFileError,
 			StatusMsg:  status.Msg(status.SaveUploadedFileError),
 		})
@@ -52,12 +52,12 @@ func Publish(c *gin.Context) {
 	/*存储到数据库*/
 	ErroeCode := videoService.AddVideo(videoPath, coverPath, title, authorId.(uint64))
 	//
-	c.JSON(http.StatusOK, pojo.PublishResponse{
+	c.JSON(http.StatusOK, dao.PublishResponse{
 		StatusCode: ErroeCode,
 		StatusMsg:  status.Msg(int(ErroeCode)),
 	})
 
-	//c.JSON(http.StatusOK, pojo.PublishResponse{
+	//c.JSON(http.StatusOK, dao.PublishResponse{
 	//	StatusCode: 0,
 	//	StatusMsg:  nil,
 	//})
@@ -69,7 +69,7 @@ func GetPublishListByAuthorId(c *gin.Context) {
 	userIDstr := c.Query("user_id")
 	userID, err := strconv.ParseUint(userIDstr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusOK, pojo.GetVideoListResponse{
+		c.JSON(http.StatusOK, dao.GetVideoListResponse{
 			StatusCode: status.UnknownError,
 			StatusMsg:  status.Msg(status.UnknownError),
 			VideoList:  nil,
@@ -78,12 +78,12 @@ func GetPublishListByAuthorId(c *gin.Context) {
 	videoList := videoService.GetVideoListByAuthorId(userID)
 	userInfo := userService.GetInfoByUserId(userID)
 
-	videoRespnseList := make([]pojo.VideoResponse, len(*videoList))
+	videoRespnseList := make([]dao.VideoResponse, len(*videoList))
 
 	for idx, elem := range *videoList {
 		//还应查询点赞关系表 填充IsFavorite这项
-		videoRespnseList[idx] = pojo.VideoResponse{
-			Author: pojo.Author{
+		videoRespnseList[idx] = dao.VideoResponse{
+			Author: dao.Author{
 				FollowCount:   int64(userInfo.FollowCount),
 				FollowerCount: int64(userInfo.FollowerCount),
 				ID:            int64(userInfo.Id),
@@ -99,7 +99,7 @@ func GetPublishListByAuthorId(c *gin.Context) {
 			Title:         elem.Title,
 		}
 	}
-	c.JSON(http.StatusOK, pojo.GetVideoListResponse{
+	c.JSON(http.StatusOK, dao.GetVideoListResponse{
 		StatusCode: 0,
 		StatusMsg:  status.Msg(0),
 		VideoList:  videoRespnseList,

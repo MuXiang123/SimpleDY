@@ -1,4 +1,4 @@
-package pojo
+package dao
 
 import "encoding/json"
 
